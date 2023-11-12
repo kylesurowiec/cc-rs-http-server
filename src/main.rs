@@ -12,9 +12,10 @@ fn main() {
                 println!("Accepted new connection");
 
                 let mut buf = [0; 1024];
-                let _message = stream.read(&mut buf);
 
-                println!("{:#?}", buf.to_ascii_lowercase());
+                stream.read(&mut buf).expect("Failed to read stream");
+
+                println!("{:#?}", buf.make_ascii_lowercase());
 
                 let _raw = parser::RawHttpRequest::new(buf.to_ascii_lowercase());
 
