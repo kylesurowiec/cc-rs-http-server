@@ -15,7 +15,7 @@ fn main() {
 
                 stream.read(&mut buf).expect("Failed to read stream");
 
-                println!("{:#?}", buf.make_ascii_lowercase());
+                println!("{:#?}", stream);
 
                 let _raw = parser::RawHttpRequest::new(buf.to_ascii_lowercase());
 
