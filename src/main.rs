@@ -12,7 +12,7 @@ fn main() {
                 println!("Accepted new connection");
 
                 let mut buf = vec![];
-                stream.read_to_end(&mut buf).expect("Failed to read stream");
+                stream.read(&mut buf).expect("Failed to read stream");
 
                 let test = String::from_utf8_lossy(&buf);
 
