@@ -3,8 +3,6 @@ mod parser;
 use std::io::{Read, Write};
 use std::net::TcpListener;
 
-use bytes::{Buf, BufMut};
-
 fn main() {
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Failed to bind TcpListener");
 
