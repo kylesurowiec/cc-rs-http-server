@@ -12,11 +12,11 @@ fn main() {
                 println!("Accepted new connection");
 
                 let mut buf = vec![];
-                let message = stream.read(&mut buf[..]);
+                let _message = stream.read(&mut buf[..]);
 
                 println!("{:#?}", buf.to_ascii_lowercase());
 
-                let raw = parser::RawHttpRequest::new(buf.to_ascii_lowercase());
+                let _raw = parser::RawHttpRequest::new(buf.to_ascii_lowercase());
 
                 let _ = stream.write(b"HTTP/1.1 200 OK\r\n\r\n");
             }

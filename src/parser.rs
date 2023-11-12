@@ -12,7 +12,7 @@ pub struct RawHttpRequest {
 }
 
 impl RawHttpRequest {
-    pub fn new(req: Vec<u8>) -> Self {
+    pub fn new(_req: Vec<u8>) -> Self {
         let header = Header {
             key: "test".to_string(),
             value: "test".to_string(),
