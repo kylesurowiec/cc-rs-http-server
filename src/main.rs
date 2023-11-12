@@ -10,15 +10,13 @@ fn main() {
         match stream {
             Ok(mut stream) => {
                 println!("Accepted new connection");
+                let mut buffer = [0; 1024];
+                stream.read(&mut buffer).unwrap();
+                let buffer = String::from_utf8_lossy(&buffer);
 
-                let mut buf = vec![];
-                stream.read(&mut buf).expect("Failed to read stream");
+                println!("{:#?}", buffer);
 
-                let test = String::from_utf8_lossy(&buf);
-
-                println!("{:#?}", test);
-
-                let _raw = parser::RawHttpRequest::new(buf.to_ascii_lowercase());
+                //let _raw = parser::RawHttpRequest::new(buffer.to_ascii_lowercase());
 
                 println!("made it here");
 
