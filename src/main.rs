@@ -17,6 +17,7 @@ fn main() {
                 println!("{:#?}", buf.to_ascii_lowercase());
 
                 let _raw = parser::RawHttpRequest::new(buf.to_ascii_lowercase());
+                println!("made it here");
                 let _ = stream.write(b"HTTP/1.1 200 OK\r\n\r\n");
             }
             Err(e) => {
