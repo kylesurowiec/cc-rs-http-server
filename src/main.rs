@@ -14,7 +14,7 @@ fn main() {
                 let mut buf = [0; 1024];
                 let _message = stream.read(&mut buf);
 
-                println!("{:#?}", buf);
+                println!("{:#?}", buf.to_ascii_lowercase());
 
                 let _raw = parser::RawHttpRequest::new(buf.to_ascii_lowercase());
 
