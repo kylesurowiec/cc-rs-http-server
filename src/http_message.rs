@@ -24,7 +24,7 @@ impl Display for ContentType {
             ContentType::Json => CONTENT_TYPE_JSON,
             ContentType::Text => CONTENT_TYPE_TEXT,
         };
-        write!(f, "{}: {}", CONTENT_TYPE, content_type_value)
+        write!(f, "{}: {}\r\n", CONTENT_TYPE, content_type_value)
     }
 }
 
