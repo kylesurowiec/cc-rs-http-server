@@ -1,5 +1,3 @@
-#![feature(is_some_and)]
-
 mod http_message;
 mod parser;
 mod status_code;
