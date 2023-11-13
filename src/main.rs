@@ -34,14 +34,8 @@ fn main() -> Result<()> {
                     return Ok(());
                 }
 
-                let mut path_chunks = req.path.split('/');
-
-                if path_chunks.next().is_some_and(|chunk| {
-                    println!("{:#?}", chunk);
-                    println!("chunk should be echo: 200");
-                    chunk == "echo"
-                }) {
-                    let message = path_chunks.collect_vec().join("");
+                if req.path.contains("echo") {
+                    let message = req.path.split("echo").collect::<Vec<&str>>().join("");
                     let res = HttpMessage::new()
                         .status_code(StatusCode::Ok)
                         .content_type(ContentType::Text)
