@@ -1,6 +1,5 @@
 mod http_message;
 mod parser;
-mod response;
 mod status_code;
 
 use std::io::{Read, Write};
