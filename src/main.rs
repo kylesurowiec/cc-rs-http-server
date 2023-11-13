@@ -24,7 +24,7 @@ fn main() -> Result<()> {
                 stream.read(&mut buffer).unwrap();
 
                 let raw = RawHttpRequest::parse(&buffer)?;
-                let message = raw.path.split('/').nth(2).unwrap();
+                let message = raw.path.split('/').nth(2).unwrap_or("");
 
                 let res = HttpMessage::new()
                     .status_code(StatusCode::Ok)
