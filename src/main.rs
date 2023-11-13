@@ -1,12 +1,20 @@
+mod http_message;
 mod parser;
+mod response;
+mod status_code;
 
 use std::io::{Read, Write};
 use std::net::TcpListener;
 
 use anyhow::Result;
 
+use crate::http_message::{ContentType, HttpMessage};
+use crate::parser::RawHttpRequest;
+use crate::status_code::StatusCode;
+
 fn main() -> Result<()> {
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Failed to bind TcpListener");
+    println!("Server stated - listening on :4221");
 
     for stream in listener.incoming() {
         match stream {
@@ -16,13 +24,18 @@ fn main() -> Result<()> {
                 let mut buffer = [0; 1024];
                 stream.read(&mut buffer).unwrap();
 
-                let raw_http = parser::RawHttpRequest::new(&buffer)?;
+                let raw = RawHttpRequest::parse(&buffer)?;
+                let message = raw.path.split('/').nth(2).unwrap();
 
-                if raw_http.path == "/" {
-                    let _ = stream.write(b"HTTP/1.1 200 OK\r\n\r\n");
-                } else {
-                    let _ = stream.write(b"HTTP/1.1 404 NOT FOUND\r\n\r\n");
-                }
+                let res = HttpMessage::new()
+                    .status_code(StatusCode::Ok)
+                    .content_type(ContentType::Text)
+                    .body(message.to_string())
+                    .build();
+
+                println!("{:#?}", res);
+
+                stream.write(&res)?;
             }
             Err(e) => {
                 println!("error: {}", e);

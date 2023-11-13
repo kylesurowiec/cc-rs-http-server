@@ -1,20 +1,27 @@
 use anyhow::Result;
 
+#[derive(Debug)]
 pub enum HttpMethod {
     Get,
+    #[allow(dead_code)]
     Patch,
+    #[allow(dead_code)]
     Post,
+    #[allow(dead_code)]
     Put,
+    #[allow(dead_code)]
     Delete,
 }
 
+#[derive(Debug)]
 pub struct Header {
     pub key: String,
     pub value: String,
 }
 
+#[derive(Debug)]
 pub struct RawHttpRequest {
-    pub start_line: String,
+    pub status_line: String,
     pub path: String,
     pub method: HttpMethod,
     pub version: String,
@@ -22,53 +29,43 @@ pub struct RawHttpRequest {
 }
 
 impl RawHttpRequest {
-    pub fn new(buffer: &[u8]) -> Result<Self> {
-        let buf_as_string = String::from_utf8_lossy(buffer).to_string();
+    pub fn parse(buffer: &[u8]) -> Result<Self> {
+        let buf_as_str = String::from_utf8_lossy(buffer);
 
-        let start_line = RawHttpRequest::parse_start_line(buf_as_string)?;
-        let path = RawHttpRequest::parse_path(start_line.clone())?;
-        let version = RawHttpRequest::parse_version(start_line.clone())?;
-
-        println!("{:#?}", version);
-
-        let header = Header {
-            key: "test".to_string(),
-            value: "test".to_string(),
-        };
+        let status_line = Self::parse_status_line(&buf_as_str)?;
+        let path = Self::parse_path(&status_line)?;
+        let version = Self::parse_version(&status_line)?;
 
         Ok(Self {
-            start_line,
-            path,
+            status_line: status_line.to_string(),
+            path: path.to_string(),
             method: HttpMethod::Get,
-            version,
-            headers: vec![header],
+            version: version.to_string(),
+            headers: vec![Header {
+                key: "test".to_string(),
+                value: "test".to_string(),
+            }],
         })
     }
 
-    fn parse_start_line(raw_req: String) -> Result<String> {
-        let start_line = raw_req.split("\r\n").nth(0);
-
-        match start_line {
-            Some(start_line) => Ok(start_line.to_string()),
-            None => Err(anyhow::Error::msg("Failed to parse start line")),
-        }
+    fn parse_status_line(raw_req: &str) -> Result<&str> {
+        raw_req
+            .split("\r\n")
+            .nth(0)
+            .ok_or(anyhow::Error::msg("Failed to parse status line"))
     }
 
-    fn parse_path(start_line: String) -> Result<String> {
-        let path = start_line.split_whitespace().nth(1);
-
-        match path {
-            Some(path) => Ok(path.to_string()),
-            None => Err(anyhow::Error::msg("Failed to parse path")),
-        }
+    fn parse_path(start_line: &str) -> Result<&str> {
+        start_line
+            .split_whitespace()
+            .nth(1)
+            .ok_or(anyhow::Error::msg("Failed to parse path"))
     }
 
-    fn parse_version(start_line: String) -> Result<String> {
-        let version = start_line.split_whitespace().nth(2);
-
-        match version {
-            Some(version) => Ok(version.to_string()),
-            None => Err(anyhow::Error::msg("Failed to parse path")),
-        }
+    fn parse_version(start_line: &str) -> Result<&str> {
+        start_line
+            .split_whitespace()
+            .nth(2)
+            .ok_or(anyhow::Error::msg("Failed to parse version"))
     }
 }
