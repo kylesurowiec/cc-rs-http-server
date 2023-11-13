@@ -34,7 +34,7 @@ fn main() -> Result<()> {
                     println!("chunk should be empty: 404");
                     chunk.is_empty()
                 }) {
-                    let res = HttpMessage::new().status_code(StatusCode::Ok).build();
+                    let res = HttpMessage::new().status_code(StatusCode::NotFound).build();
                     stream.write(&res)?;
                     return Ok(());
                 }
