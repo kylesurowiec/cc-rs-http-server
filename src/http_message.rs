@@ -24,7 +24,7 @@ impl Display for ContentType {
             ContentType::Json => CONTENT_TYPE_JSON,
             ContentType::Text => CONTENT_TYPE_TEXT,
         };
-        write!(f, "{} {}", CONTENT_TYPE, content_type_value)
+        write!(f, "{}: {}", CONTENT_TYPE, content_type_value)
     }
 }
 
@@ -78,11 +78,11 @@ impl HttpMessage {
     fn get_body(&self) -> (String, String) {
         match self.body {
             Some(ref body) => (
-                format!("{} {}\r\n\r\n", CONTENT_LENGTH, body.len()),
+                format!("{}: {}\r\n\r\n", CONTENT_LENGTH, body.len()),
                 String::from(body),
             ),
             None => (
-                format!("{} {}\r\n\r\n", CONTENT_LENGTH, 0),
+                format!("{}: {}\r\n\r\n", CONTENT_LENGTH, 0),
                 String::from(""),
             ),
         }
