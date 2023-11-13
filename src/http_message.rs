@@ -1,13 +1,12 @@
-use std::{
-    fmt::{Display, Formatter, Result},
-    mem::size_of,
-};
+use std::fmt::{Display, Formatter, Result};
 
 use bytes::BufMut;
 
 use crate::status_code::StatusCode;
 
 pub const HTTP_VERSION_1_1: &str = "HTTP/1.1";
+// Only store text/html | text/json etc...
+// Prepend Content-Type in method
 pub const H_CONTENT_TYPE_HTML: &str = "Content-Type: text/html";
 pub const H_CONTENT_TYPE_JSON: &str = "Content-Type: text/json";
 pub const H_CONTENT_TYPE_TEXT: &str = "Content-Type: text/plain";
@@ -71,9 +70,9 @@ impl HttpMessage {
         // Status line
         buffer.put(format!("{} {}\r\n", HTTP_VERSION_1_1, self.status_code).as_bytes());
         // TODO: Support multiple headers
-        // Content type header
+        // Content-Type header
         buffer.put(format!("{}\r\n", self.content_type).as_bytes());
-        // Content length header (if applicable)
+        // Content-Length header (if applicable)
         let content_length = self.body.len();
         if content_length > 0 {
             buffer.put(format!("{} {}", H_CONTENT_LENGTH, content_length).as_bytes());
