@@ -29,7 +29,7 @@ fn main() -> Result<()> {
                 println!("{:#?}", req);
                 let mut path = req.path.split("/");
 
-                if path.next().is_some_and(|chunk| {
+                if path.nth(0).is_some_and(|chunk| {
                     println!("{:#?}", chunk);
                     println!("chunk should be empty: 404");
                     chunk.is_empty()
