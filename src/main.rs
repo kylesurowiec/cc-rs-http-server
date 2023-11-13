@@ -46,7 +46,7 @@ fn main() -> Result<()> {
                 }) {
                     let message = path.collect_vec().join("");
                     let res = HttpMessage::new()
-                        .status_code(StatusCode::Ok)
+                        .status_code(StatusCode::NotFound)
                         .content_type(ContentType::Text)
                         .body(message.to_string())
                         .build();
