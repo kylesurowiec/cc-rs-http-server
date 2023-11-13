@@ -31,7 +31,7 @@ fn main() -> Result<()> {
 
                 if message.is_empty() {
                     let res = HttpMessage::new()
-                        .status_code(StatusCode::NotFound)
+                        .status_code(StatusCode::Ok)
                         .body(message.to_string())
                         .build();
 
