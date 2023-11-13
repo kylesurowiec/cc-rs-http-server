@@ -2,15 +2,10 @@ use std::fmt::{Display, Formatter, Result};
 
 use bytes::BufMut;
 
-use crate::status_code::StatusCode;
+use crate::http_headers::*;
+use crate::http_status_code::StatusCode;
 
 pub const HTTP_VERSION_1_1: &str = "HTTP/1.1";
-// Only store text/html | text/json etc...
-// Prepend Content-Type in method
-pub const H_CONTENT_TYPE_HTML: &str = "Content-Type: text/html";
-pub const H_CONTENT_TYPE_JSON: &str = "Content-Type: text/json";
-pub const H_CONTENT_TYPE_TEXT: &str = "Content-Type: text/plain";
-pub const H_CONTENT_LENGTH: &str = "Content-Length:";
 
 #[derive(Debug, Default)]
 pub enum ContentType {
@@ -24,12 +19,12 @@ pub enum ContentType {
 
 impl Display for ContentType {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-        let header_text = match self {
-            ContentType::Html => H_CONTENT_TYPE_HTML,
-            ContentType::Json => H_CONTENT_TYPE_JSON,
-            ContentType::Text => H_CONTENT_TYPE_TEXT,
+        let content_type_value = match self {
+            ContentType::Html => CONTENT_TYPE_HTML,
+            ContentType::Json => CONTENT_TYPE_JSON,
+            ContentType::Text => CONTENT_TYPE_TEXT,
         };
-        write!(f, "{}", header_text)
+        write!(f, "{} {}", CONTENT_TYPE, content_type_value)
     }
 }
 
@@ -37,7 +32,8 @@ impl Display for ContentType {
 pub struct HttpMessage {
     #[allow(dead_code)]
     status_line: String,
-    pub body: String,
+    pub body: Option<String>,
+    pub headers: Vec<String>,
     pub content_type: ContentType,
     pub status_code: StatusCode,
     pub status_text: String,
@@ -60,7 +56,7 @@ impl HttpMessage {
     }
 
     pub fn body(&mut self, body: String) -> &mut Self {
-        self.body = body;
+        self.body = Some(body);
         self
     }
 
@@ -69,17 +65,26 @@ impl HttpMessage {
 
         // Status line
         buffer.put(format!("{} {}\r\n", HTTP_VERSION_1_1, self.status_code).as_bytes());
-        // TODO: Support multiple headers
         // Content-Type header
-        buffer.put(format!("{}\r\n", self.content_type).as_bytes());
-        // Content-Length header (if applicable)
-        let content_length = self.body.len();
-        if content_length > 0 {
-            buffer.put(format!("{} {}", H_CONTENT_LENGTH, content_length).as_bytes());
-        }
-        // Body
-        buffer.put(format!("\r\n\r\n{}", self.body).as_bytes());
+        buffer.put(self.content_type.to_string().as_bytes());
+        // Content-Length header and body (if applicable)
+        let (content_length_header, body) = self.get_body();
+        buffer.put(content_length_header.as_bytes());
+        buffer.put(body.as_bytes());
 
         buffer
+    }
+
+    fn get_body(&self) -> (String, String) {
+        match self.body {
+            Some(ref body) => (
+                format!("{} {}\r\n\r\n", CONTENT_LENGTH, body.len()),
+                String::from(body),
+            ),
+            None => (
+                format!("{} {}\r\n\r\n", CONTENT_LENGTH, 0),
+                String::from(""),
+            ),
+        }
     }
 }

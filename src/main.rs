@@ -1,6 +1,7 @@
+mod http_headers;
 mod http_message;
+mod http_status_code;
 mod parser;
-mod status_code;
 
 use std::io::{Read, Write};
 use std::net::TcpListener;
@@ -8,8 +9,8 @@ use std::net::TcpListener;
 use anyhow::Result;
 
 use crate::http_message::{ContentType, HttpMessage};
+use crate::http_status_code::StatusCode;
 use crate::parser::RawHttpRequest;
-use crate::status_code::StatusCode;
 
 fn main() -> Result<()> {
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Failed to bind TcpListener");
@@ -25,8 +26,6 @@ fn main() -> Result<()> {
 
                 let req = RawHttpRequest::parse(&buffer)?;
 
-                println!("{:#?}", req);
-
                 if req.path == "/" {
                     let res = HttpMessage::new().status_code(StatusCode::Ok).build();
                     stream.write(&res)?;
@@ -34,7 +33,7 @@ fn main() -> Result<()> {
                 }
 
                 if req.path.contains("/echo/") {
-                    let message = req.path.split("/echo/").collect::<Vec<&str>>().join("");
+                    let message = req.path.split("/echo/").collect::<Vec<_>>().join("");
                     let res = HttpMessage::new()
                         .status_code(StatusCode::Ok)
                         .content_type(ContentType::Text)
