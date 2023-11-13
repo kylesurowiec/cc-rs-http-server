@@ -29,13 +29,21 @@ fn main() -> Result<()> {
                 println!("{:#?}", req);
                 let mut path = req.path.split("/");
 
-                if path.next().is_some_and(|chunk| chunk == "") {
+                if path.next().is_some_and(|chunk| {
+                    println!("{:#?}", chunk);
+                    println!("chunk should be empty: 404");
+                    chunk == ""
+                }) {
                     let res = HttpMessage::new().status_code(StatusCode::Ok).build();
                     stream.write(&res)?;
                     return Ok(());
                 }
 
-                if path.next().is_some_and(|chunk| chunk == "echo") {
+                if path.next().is_some_and(|chunk| {
+                    println!("{:#?}", chunk);
+                    println!("chunk should be echo: 200");
+                    chunk == "echo"
+                }) {
                     let message = path.collect_vec().join("");
                     let res = HttpMessage::new()
                         .status_code(StatusCode::Ok)
