@@ -33,8 +33,8 @@ fn main() -> Result<()> {
                     return Ok(());
                 }
 
-                if req.path.contains("echo") {
-                    let message = req.path.split("/echo").collect::<Vec<&str>>().join("");
+                if req.path.contains("/echo/") {
+                    let message = req.path.split("/echo/").collect::<Vec<&str>>().join("");
                     let res = HttpMessage::new()
                         .status_code(StatusCode::Ok)
                         .content_type(ContentType::Text)
