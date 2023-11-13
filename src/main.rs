@@ -23,16 +23,17 @@ fn main() -> Result<()> {
                 let mut buffer = [0; 1024];
                 stream.read(&mut buffer).unwrap();
 
-                let raw = RawHttpRequest::parse(&buffer)?;
-                let message = raw.path.split('/').nth(2).unwrap_or("");
+                let req = RawHttpRequest::parse(&buffer)?;
+
+                println!("{:#?}", req);
+
+                let message = req.path.split('/').nth(2).unwrap_or("");
 
                 let res = HttpMessage::new()
                     .status_code(StatusCode::Ok)
                     .content_type(ContentType::Text)
                     .body(message.to_string())
                     .build();
-
-                println!("{:#?}", res);
 
                 stream.write(&res)?;
             }
