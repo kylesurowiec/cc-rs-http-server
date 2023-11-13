@@ -5,9 +5,10 @@ use bytes::BufMut;
 use crate::status_code::StatusCode;
 
 pub const HTTP_VERSION_1_1: &str = "HTTP/1.1";
-pub const CONTENT_TYPE_HTML: &str = "Content-Type: text/html";
-pub const CONTENT_TYPE_JSON: &str = "Content-Type: text/json";
-pub const CONTENT_TYPE_TEXT: &str = "Content-Type: text/plain";
+pub const H_CONTENT_TYPE_HTML: &str = "Content-Type: text/html";
+pub const H_CONTENT_TYPE_JSON: &str = "Content-Type: text/json";
+pub const H_CONTENT_TYPE_TEXT: &str = "Content-Type: text/plain";
+pub const H_CONTENT_LENGTH: &str = "Content-Length:";
 
 #[derive(Debug, Default)]
 pub enum ContentType {
@@ -22,9 +23,10 @@ pub enum ContentType {
 impl Display for ContentType {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         let header_text = match self {
-            ContentType::Html => CONTENT_TYPE_HTML,
-            ContentType::Json => CONTENT_TYPE_JSON,
-            ContentType::Text => CONTENT_TYPE_TEXT,
+            ContentType::Html => H_CONTENT_TYPE_HTML,
+            ContentType::Json => H_CONTENT_TYPE_JSON,
+            ContentType::Text => H_CONTENT_TYPE_TEXT,
+            ContentType::Text => H_CONTENT_LENGTH,
         };
         write!(f, "{}", header_text)
     }
@@ -67,10 +69,16 @@ impl HttpMessage {
         // TODO: Support multiple headers
         // Status line
         buffer.put(format!("{} {}\r\n", HTTP_VERSION_1_1, self.status_code).as_bytes());
-        // Headers
+        // Content type header
         buffer.put(format!("{}\r\n\r\n", self.content_type).as_bytes());
         // Body
         buffer.put(format!("{}", self.body).as_bytes());
+
+        let content_length = self.body.bytes().count();
+        if content_length > 0 {
+            // Content length header
+            buffer.put(format!("{} {}", H_CONTENT_LENGTH, content_length).as_bytes());
+        }
 
         buffer
     }
