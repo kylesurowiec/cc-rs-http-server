@@ -27,7 +27,18 @@ fn main() -> Result<()> {
 
                 println!("{:#?}", req);
 
-                let message = req.path.split('/').nth(2).unwrap_or("");
+                let message = req.path.split("/echo").nth(1).unwrap_or("");
+
+                if message.is_empty() {
+                    let res = HttpMessage::new()
+                        .status_code(StatusCode::NotFound)
+                        .body(message.to_string())
+                        .build();
+
+                    stream.write(&res)?;
+
+                    return Ok(());
+                }
 
                 let res = HttpMessage::new()
                     .status_code(StatusCode::Ok)
@@ -36,9 +47,11 @@ fn main() -> Result<()> {
                     .build();
 
                 stream.write(&res)?;
+
+                return Ok(());
             }
             Err(e) => {
-                println!("error: {}", e);
+                println!("error: {}", e)
             }
         }
     }
