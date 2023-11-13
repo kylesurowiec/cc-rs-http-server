@@ -32,7 +32,7 @@ fn main() -> Result<()> {
                 if path.next().is_some_and(|chunk| {
                     println!("{:#?}", chunk);
                     println!("chunk should be empty: 404");
-                    chunk == ""
+                    chunk.is_empty()
                 }) {
                     let res = HttpMessage::new().status_code(StatusCode::Ok).build();
                     stream.write(&res)?;
