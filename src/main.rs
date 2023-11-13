@@ -43,7 +43,7 @@ fn main() -> Result<()> {
                 }) {
                     let message = path_chunks.collect_vec().join("");
                     let res = HttpMessage::new()
-                        .status_code(StatusCode::NotFound)
+                        .status_code(StatusCode::Ok)
                         .content_type(ContentType::Text)
                         .body(message.to_string())
                         .build();
