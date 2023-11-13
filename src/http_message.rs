@@ -71,14 +71,13 @@ impl HttpMessage {
         buffer.put(format!("{} {}\r\n", HTTP_VERSION_1_1, self.status_code).as_bytes());
         // Content type header
         buffer.put(format!("{}\r\n\r\n", self.content_type).as_bytes());
-        // Body
-        buffer.put(format!("{}", self.body).as_bytes());
-
+        // Content length header (if applicable)
         let content_length = self.body.bytes().count();
         if content_length > 0 {
-            // Content length header
             buffer.put(format!("{} {}", H_CONTENT_LENGTH, content_length).as_bytes());
         }
+        // Body
+        buffer.put(format!("{}", self.body).as_bytes());
 
         buffer
     }
