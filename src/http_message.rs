@@ -11,7 +11,9 @@ pub const CONTENT_TYPE_TEXT: &str = "Content-Type: text/plain";
 
 #[derive(Debug, Default)]
 pub enum ContentType {
+    #[allow(dead_code)]
     Html,
+    #[allow(dead_code)]
     Json,
     #[default]
     Text,
@@ -30,6 +32,7 @@ impl Display for ContentType {
 
 #[derive(Debug, Default)]
 pub struct HttpMessage {
+    #[allow(dead_code)]
     status_line: String,
     pub body: String,
     pub content_type: ContentType,
