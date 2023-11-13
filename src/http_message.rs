@@ -1,4 +1,7 @@
-use std::fmt::{Display, Formatter, Result};
+use std::{
+    fmt::{Display, Formatter, Result},
+    mem::size_of,
+};
 
 use bytes::BufMut;
 
@@ -26,7 +29,6 @@ impl Display for ContentType {
             ContentType::Html => H_CONTENT_TYPE_HTML,
             ContentType::Json => H_CONTENT_TYPE_JSON,
             ContentType::Text => H_CONTENT_TYPE_TEXT,
-            ContentType::Text => H_CONTENT_LENGTH,
         };
         write!(f, "{}", header_text)
     }
@@ -74,7 +76,7 @@ impl HttpMessage {
         // Content length header (if applicable)
         let content_length = self.body.bytes().count();
         if content_length > 0 {
-            buffer.put(format!("{} {}\r\n", H_CONTENT_LENGTH, content_length).as_bytes());
+            buffer.put(format!("{} {}\r\n", H_CONTENT_LENGTH, self.body.len()).as_bytes());
         }
         // Body
         buffer.put(format!("\r\n{}", self.body).as_bytes());

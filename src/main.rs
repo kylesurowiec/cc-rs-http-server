@@ -6,7 +6,6 @@ use std::io::{Read, Write};
 use std::net::TcpListener;
 
 use anyhow::Result;
-use itertools::Itertools;
 
 use crate::http_message::{ContentType, HttpMessage};
 use crate::parser::RawHttpRequest;
