@@ -68,18 +68,18 @@ impl HttpMessage {
     pub fn build(&self) -> Vec<u8> {
         let mut buffer = vec![];
 
-        // TODO: Support multiple headers
         // Status line
         buffer.put(format!("{} {}\r\n", HTTP_VERSION_1_1, self.status_code).as_bytes());
+        // TODO: Support multiple headers
         // Content type header
         buffer.put(format!("{}\r\n", self.content_type).as_bytes());
         // Content length header (if applicable)
-        let content_length = self.body.bytes().count();
+        let content_length = self.body.len();
         if content_length > 0 {
-            buffer.put(format!("{} {}\r\n", H_CONTENT_LENGTH, self.body.len()).as_bytes());
+            buffer.put(format!("{} {}", H_CONTENT_LENGTH, content_length).as_bytes());
         }
         // Body
-        buffer.put(format!("\r\n{}", self.body).as_bytes());
+        buffer.put(format!("\r\n\r\n{}", self.body).as_bytes());
 
         buffer
     }
