@@ -1,3 +1,5 @@
+#![feature(is_some_and)]
+
 mod http_message;
 mod parser;
 mod status_code;
@@ -6,6 +8,7 @@ use std::io::{Read, Write};
 use std::net::TcpListener;
 
 use anyhow::Result;
+use itertools::Itertools;
 
 use crate::http_message::{ContentType, HttpMessage};
 use crate::parser::RawHttpRequest;
@@ -26,12 +29,19 @@ fn main() -> Result<()> {
                 let req = RawHttpRequest::parse(&buffer)?;
 
                 println!("{:#?}", req);
+                let mut path = req.path.split("/");
 
-                let message = req.path.split("/echo").nth(1).unwrap_or("");
+                if path.next().is_some_and(|chunk| chunk == "") {
+                    let res = HttpMessage::new().status_code(StatusCode::Ok).build();
+                    stream.write(&res)?;
+                    return Ok(());
+                }
 
-                if message.is_empty() {
+                if path.next().is_some_and(|chunk| chunk == "echo") {
+                    let message = path.collect_vec().join("");
                     let res = HttpMessage::new()
                         .status_code(StatusCode::Ok)
+                        .content_type(ContentType::Text)
                         .body(message.to_string())
                         .build();
 
@@ -41,9 +51,8 @@ fn main() -> Result<()> {
                 }
 
                 let res = HttpMessage::new()
-                    .status_code(StatusCode::Ok)
+                    .status_code(StatusCode::NotFound)
                     .content_type(ContentType::Text)
-                    .body(message.to_string())
                     .build();
 
                 stream.write(&res)?;
