@@ -60,6 +60,7 @@ impl HttpMessage {
         self
     }
 
+    // TODO: Pass buffer to helper methods for content-length and body
     pub fn build(&self) -> Vec<u8> {
         let mut buffer = vec![];
 
