@@ -1,6 +1,6 @@
 use anyhow::Result;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum HttpMethod {
     Get,
     #[allow(dead_code)]
