@@ -1,15 +1,12 @@
-mod http_headers;
-mod http_message;
-mod http_status_code;
+mod http;
 mod parser;
 
-use std::io::{Read, Write};
+use std::io::{BufReader, Write};
 use std::net::TcpListener;
 
 use anyhow::Result;
 
-use crate::http_message::{ContentType, HttpMessage};
-use crate::http_status_code::StatusCode;
+use crate::http::{ContentType, Message, StatusCode};
 use crate::parser::RawHttpRequest;
 
 fn main() -> Result<()> {
@@ -21,20 +18,26 @@ fn main() -> Result<()> {
             Ok(mut stream) => {
                 println!("Accepted new connection");
 
-                let mut buffer = [0; 1024];
-                stream.read(&mut buffer).unwrap();
+                let buffer = BufReader::new(&mut stream);
+                let req = RawHttpRequest::parse(buffer)?;
 
-                let req = RawHttpRequest::parse(&buffer)?;
+                println!("{:#?}", req);
 
-                if req.path == "/" {
-                    let res = HttpMessage::new().status_code(StatusCode::Ok).build();
+                if req.status_line.path == "/" {
+                    let res = Message::new().status_code(StatusCode::Ok).build();
                     stream.write(&res)?;
                     return Ok(());
                 }
 
-                if req.path.contains("/echo/") {
-                    let message = req.path.split("/echo/").collect::<Vec<_>>().join("");
-                    let res = HttpMessage::new()
+                if req.status_line.path.contains("/echo/") {
+                    let message = req
+                        .status_line
+                        .path
+                        .split("/echo/")
+                        .collect::<Vec<_>>()
+                        .join("");
+
+                    let res = Message::new()
                         .status_code(StatusCode::Ok)
                         .content_type(ContentType::Text)
                         .body(message.to_string())
@@ -45,7 +48,26 @@ fn main() -> Result<()> {
                     return Ok(());
                 }
 
-                let res = HttpMessage::new()
+                if req.status_line.path.contains("/user-agent") {
+                    let message = req
+                        .status_line
+                        .path
+                        .split("/user-agent")
+                        .collect::<Vec<_>>()
+                        .join("");
+
+                    let res = Message::new()
+                        .status_code(StatusCode::Ok)
+                        .content_type(ContentType::Text)
+                        .body(message.to_string())
+                        .build();
+
+                    stream.write(&res)?;
+
+                    return Ok(());
+                }
+
+                let res = Message::new()
                     .status_code(StatusCode::NotFound)
                     .content_type(ContentType::Text)
                     .build();

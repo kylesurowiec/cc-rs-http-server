@@ -2,8 +2,7 @@ use std::fmt::{Display, Formatter, Result};
 
 use bytes::BufMut;
 
-use crate::http_headers::*;
-use crate::http_status_code::StatusCode;
+use crate::http::*;
 
 pub const HTTP_VERSION_1_1: &str = "HTTP/1.1";
 
@@ -20,16 +19,16 @@ pub enum ContentType {
 impl Display for ContentType {
     fn fmt(&self, f: &mut Formatter<'_>) -> Result {
         let content_type_value = match self {
-            ContentType::Html => CONTENT_TYPE_HTML,
-            ContentType::Json => CONTENT_TYPE_JSON,
-            ContentType::Text => CONTENT_TYPE_TEXT,
+            ContentType::Html => CONTENT_TYPE_VALUE_HTML,
+            ContentType::Json => CONTENT_TYPE_VALUE_JSON,
+            ContentType::Text => CONTENT_TYPE_VALUE_TEXT,
         };
-        write!(f, "{}: {}\r\n", CONTENT_TYPE, content_type_value)
+        write!(f, "{}: {}\r\n", CONTENT_TYPE_KEY, content_type_value)
     }
 }
 
 #[derive(Debug, Default)]
-pub struct HttpMessage {
+pub struct Message {
     #[allow(dead_code)]
     status_line: String,
     pub body: Option<String>,
@@ -40,9 +39,9 @@ pub struct HttpMessage {
     pub version: String,
 }
 
-impl HttpMessage {
+impl Message {
     pub fn new() -> Self {
-        HttpMessage::default()
+        Message::default()
     }
 
     pub fn status_code(&mut self, status_code: StatusCode) -> &mut Self {
@@ -79,11 +78,11 @@ impl HttpMessage {
     fn get_body(&self) -> (String, String) {
         match self.body {
             Some(ref body) => (
-                format!("{}: {}\r\n\r\n", CONTENT_LENGTH, body.len()),
+                format!("{}: {}\r\n\r\n", CONTENT_LENGTH_KEY, body.len()),
                 String::from(body),
             ),
             None => (
-                format!("{}: {}\r\n\r\n", CONTENT_LENGTH, 0),
+                format!("{}: {}\r\n\r\n", CONTENT_LENGTH_KEY, 0),
                 String::from(""),
             ),
         }
