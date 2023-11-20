@@ -1,13 +1,12 @@
 mod http;
-mod parser;
+mod json;
 
 use std::io::{BufReader, Write};
 use std::net::TcpListener;
 
 use anyhow::Result;
 
-use crate::http::{ContentType, Message, StatusCode};
-use crate::parser::RawHttpRequest;
+use crate::http::{ContentType, Message, RawHttpRequest, StatusCode};
 
 fn main() -> Result<()> {
     let listener = TcpListener::bind("127.0.0.1:4221").expect("Failed to bind TcpListener");
